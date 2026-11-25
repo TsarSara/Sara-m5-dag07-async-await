@@ -6,44 +6,52 @@ import type { Ratt, Tillstand } from "./typer";
 
 // 1. Hämta hela menyn (använd hamtaMenyFranServer med 10 ms). Returnerar menyn.
 export async function hamtaMeny(): Promise<Ratt[]> {
+
   const meny = await hamtaMenyFranServer();
-  console.log(meny);
+  
   return meny;
 }
 
 // 2. Hämta namnet på en rätt (hamtaRattFranServer(id, 10)). Okänt id: låt felet följa med (fånga det inte).
 export async function hamtaRattNamn(id: number): Promise<string> {
+
     const ratt = await hamtaRattFranServer(id, 10);
-    console.log(id, ratt.namn);
+    
     return ratt.namn;
 }
 
 // 3. Som 2, men om något går fel returnerar funktionen null istället för att kasta fel (try/catch).
 export async function hamtaRattEllerNull(id: number): Promise<Ratt | null> {
+  
   try {
     const ratt = await hamtaRattFranServer(id, 10);
-    console.log(ratt);
+    
     return ratt; 
+
   } catch (fel) {
+
     return null;
   }
 }
 
 // 4. Hämta två rätter EFTER varandra (await, sedan await). Returnerar [ratt1, ratt2]. ms är väntetiden per anrop.
 export async function hamtaTvaRatterEfterVarandra(id1: number, id2: number, ms: number = 100): Promise<Ratt[]> {
+
   const ratt1 = await hamtaRattFranServer(id1, ms);
   const ratt2 = await hamtaRattFranServer(id2, ms);
   //console.log([ratt1, ratt2], meny);// Testet gick igenom när jag hade console avkommenterad, och även med kommentar. 
-  // Men när jag uppdaterade testet gick det inte igenom. Hade inte ms i (id2, ms) Det påverkade också hamtaTvaRatterParallellt. Skumt. 
+  // Men när jag uppdaterade testet gick det inte igenom. Hade inte ms i (id2, ms) Det påverkade också hamtaTvaRatterParallellt. Skumt. (Insåg långt senare att det var helt oberoende detta. )
   return [ratt1, ratt2];
 }
 
 // 5. Samma sak, men båda ANROPEN startas samtidigt (Promise.all). Ska gå dubbelt så snabbt.
 export async function hamtaTvaRatterParallellt(id1: number, id2: number, ms: number = 100): Promise<Ratt[]> {
+  
   const ratter = await Promise.all([
     hamtaRattFranServer(id1, ms),
     hamtaRattFranServer(id2, ms),
   ]);
+
   return ratter;
 }
 
@@ -80,10 +88,12 @@ export async function hamtaMedForsok<T>(anropFn: () => Promise<T>, maxForsok: nu
 // 7. Ge en promise en tidsgräns. Är den inte klar inom ms millisekunder: avvisa med
 //    new Error("Tidsgränsen överskreds"). Tips: Promise.race med en promise som avvisas efter ms.
 export function medTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+
   const tidsgrans = new Promise<never>((_, reject) => { //never - det finns inte något möjligt värde som Promise kan uppfyllas (resolve) med.
     //Promise ska bara kunna misslyckas. Det ska aldrig returnera något resultat. _ motsvarar resolve, vi tänker inte använda den första parametern och behöver bara reject.
     setTimeout(() => reject(new Error("Tidsgränsen överskreds")), ms);
   });
+
   return Promise.race([promise, tidsgrans]); //Promise.race() tar emot en samling Promise och väntar på att något av dem ska bli färdigt först.
 }
 
