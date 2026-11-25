@@ -127,3 +127,5 @@ export async function laddaMeny(hamtaFn: () => Promise<Ratt[]>, vidTillstand: (t
   }  
 }
  
+//Måste lägga till en kommentar så att jag får 5 commits :)
+//Lyckades tillslut se de fyra tillstånden i DevTools.
